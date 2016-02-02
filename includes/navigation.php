@@ -20,7 +20,7 @@
                         <a href="#">Link 2</a>
                     </li>
                     <li>
-                        <a href="#">Link 3</a>
+                        <a href="admin">Admin</a>
                     </li>
                 </ul>
             </div>
