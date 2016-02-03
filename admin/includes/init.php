@@ -4,10 +4,15 @@ function photo_gallery_autoloader($class) {
     $class = strtolower( $class );
     $the_path = "includes/{$class}.php";
 
-    if ( file_exists($the_path)) {
-        require($the_path);
-    } else {
-        die("This file name {$class}.php was not found.");
+    if ( is_readable($the_path) ) {
+        try {
+            require( $the_path );
+        } catch (Exception $e) {
+            print_r($e);
+        }
     }
 }
 spl_autoload_register('photo_gallery_autoloader');
+
+// Start the session
+$session = new Session();
