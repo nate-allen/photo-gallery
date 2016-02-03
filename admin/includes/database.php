@@ -13,14 +13,17 @@ class Database {
 
 
     public static function get_instance() {
+
         if(!self::$_instance) {
             self::$_instance = new self();
         }
         return self::$_instance;
+
     }
 
 
     public function open_db_connection() {
+
         try {
             $this->connection = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -28,35 +31,61 @@ class Database {
             echo $e->getMessage();
             die('Could not connect!');
         }
+
     }
 
 
-    public function query($sql) {
-        $result = $this->connection->query($sql);
+    public function query($sql, $params = array()) {
+
+        $query =  $this->connection->prepare($sql);
+
+        // Dynamically adding our values to the SQL
+        foreach($params as $key => $value) {
+            if ( $key === ":limit" ){
+                $query->bindValue($key, $value, PDO::PARAM_INT);
+            } else {
+                $query->bindValue($key, $value);
+            }
+        }
+
+        $query->execute();
+
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+
         $this->confirm_query($result);
+
         return $result;
+
     }
 
 
     private function confirm_query($result) {
+
         if(!$result) {
             die("Query failed");
         }
+
     }
 
 
     public function escape_string($string) {
+
         return $this->connection->quote($string);
+
     }
 
 
     public function the_insert_id() {
+
         return $this->connection->lastInsertId();
+
     }
 
 
     public function get_connection() {
+
         return $this->connection;
+
     }
 
 
@@ -67,7 +96,9 @@ class Database {
 
 
     public function __destruct() {
+
         $this->connection = null;
+
     }
 
 }
