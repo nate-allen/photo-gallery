@@ -18,31 +18,51 @@ class User {
     static function find_user_by_id( $id ) {
 
         $results = self::find_this_query( "SELECT * FROM users WHERE id=$id LIMIT 1" );
-        return $results[0];
+
+        return ( !empty($results) ) ? $results[0] : false;
 
     }
 
 
-    static public function find_this_query( $query ) {
+    static function find_this_query( $query ) {
 
-        global $database;
+        $database = Database::get_instance();
+        $dbh = $database->get_connection();
 
-        $results = $database->query( $query );
-        return $results->fetchAll(PDO::FETCH_ASSOC);
+        $results = $dbh->query( $query );
+        $results_array = $results->fetchAll(PDO::FETCH_ASSOC);
+
+        // Convert array to object
+        $object_array = array();
+        foreach ( $results_array as $array ) {
+            $object = new stdClass();
+            foreach ($array as $key => $value) {
+                $object->$key = $value;
+            }
+            $object_array[] = $object;
+        }
+
+        return $object_array;
 
     }
 
-    static function instantiation() {
+    static function instantiation( $user_record ) {
 
         $user_object = new self;
 
-        $user_object->id         = $found_user['id'];
-        $user_object->username   = $found_user['username'];
-        $user_object->password   = $found_user['password'];
-        $user_object->first_name = $found_user['first_name'];
-        $user_object->last_name  = $found_user['last_name'];
+        foreach ($user_record as $property => $value) {
+            if ( $user_object->has_property( $property ) ) {
+                $user_object->$property = $value;
+            }
+        }
 
         return $user_object;
+
+    }
+
+    private function has_property( $property ) {
+
+        return property_exists($this, $property);
 
     }
 
