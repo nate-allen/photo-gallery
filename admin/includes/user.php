@@ -8,27 +8,27 @@ class User {
     public $first_name;
     public $last_name;
 
-    static function find_all_users() {
+    public static function find_all_users() {
 
         return self::find_this_query("SELECT * FROM `users`");
 
     }
 
 
-    static function find_user_by_id( $id ) {
+    public static function find_user_by_id( $id ) {
 
         $values = array(
             ":id" => $id,
             ":limit" => 1
         );
 
-        $results = self::find_this_query("SELECT * FROM `users` WHERE `id` = :id LIMIT :limit", true, $values);
+        $results = self::find_this_query("SELECT * FROM `users` WHERE `id` = :id LIMIT :limit", $values);
 
         return ( !empty($results) ) ? $results[0] : false;
 
     }
 
-    public static function find_this_query($sql, $bPrepared = false, $params = array()) {
+    public static function find_this_query($sql, $params = array()) {
 
         $database = Database::get_instance();
         $dbh = $database->get_connection();
@@ -45,29 +45,7 @@ class User {
     }
 
 
-    static function find_this_query2( $query ) {
-
-        $database = Database::get_instance();
-        $dbh = $database->get_connection();
-
-        $results = $dbh->query( $query );
-        $results_array = $results->fetchAll(PDO::FETCH_ASSOC);
-
-        // Convert array to object
-        $object_array = array();
-        foreach ( $results_array as $array ) {
-            $object = new stdClass();
-            foreach ($array as $key => $value) {
-                $object->$key = $value;
-            }
-            $object_array[] = $object;
-        }
-
-        return $object_array;
-
-    }
-
-    static function instantiation( $user_record ) {
+    public static function instantiation( $user_record ) {
 
         $user_object = new self;
 
@@ -78,6 +56,22 @@ class User {
         }
 
         return $user_object;
+
+    }
+
+    public static function verify_user( $username, $password ) {
+
+        $values = array(
+            ":username" => $username,
+            ":password" => $password,
+            ":limit" => 1
+        );
+
+        $sql  = "SELECT * FROM `users` WHERE `username` = :username AND `password` = :password LIMIT :limit";
+
+        $results = self::find_this_query($sql, $values);
+
+        return ( !empty($results) ) ? $results[0] : false;
 
     }
 
