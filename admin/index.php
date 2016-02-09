@@ -1,5 +1,11 @@
 <?php include("includes/header.php"); ?>
 
+<?php
+if ( !$session->is_signed_in() ) {
+    $session->redirect("login.php");
+}
+?>
+
         <?php include("includes/navigation.php") ?>
 
         <div id="page-wrapper">
@@ -21,25 +27,16 @@
                             </li>
                         </ol>
                         <?php
-                            $all_users = User::find_all_users();
+                            $users = User::find_all_users();
 
-                            foreach ($all_users as $user) {
-                                echo $user['username'] . "<br>";
+                            foreach($users as $user) {
+
+                                echo $user->username."<br>";
+
                             }
 
-                            $found_user = User::find_user_by_id('2');
-
-                            echo "Found " . $found_user['username'];
-
-                            $user = new User();
-
-                            $user->id = $found_user['id'];
-                            $user->username = $found_user['username'];
-                            $user->password = $found_user['password'];
-                            $user->first_name = $found_user['first_name'];
-                            $user->last_name = $found_user['last_name'];
-
-                            echo $user->id;
+                            $single_user = User::find_user_by_id(1);
+                            echo $single_user->first_name;
                         ?>
                     </div>
                 </div>
