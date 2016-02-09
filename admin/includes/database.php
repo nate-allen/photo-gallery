@@ -52,7 +52,7 @@ class Database {
 
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
 
-        $this->confirm_query($result);
+        // $this->confirm_query($result);
 
         return $result;
 
